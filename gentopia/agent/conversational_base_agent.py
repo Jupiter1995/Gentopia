@@ -8,6 +8,7 @@ from pydantic import BaseModel, create_model
 from gentopia.llm.base_llm import BaseLLM
 from gentopia.model.agent_model import AgentType, AgentOutput
 from gentopia.memory.api import MemoryWrapper
+from gentopia.output.console_output import ConsoleOutput
 # from gentopia.environment import Environment -- active this line after Environmentation implementation
 from rich import print as rprint
 
@@ -92,21 +93,46 @@ class ConvBaseAgent(ABC, BaseModel):
     ):
         pass
 
+    @abstractmethod
+    def generate_reply(
+        self,
+        message: Union[list[Dict], Dict],
+        sender: "ConvAgent",
+        **kwargs
+    ):
+        """Abstract method for reply generation"""
+        pass
+  
+    
+    async def a_generate_reply(
+            self,
+            message: Union[list[Dict], Dict],
+            sender: "ConvAgent",
+            **kwargs
+    ):
+        pass
+
+    @abstractmethod
     def reset(self):
         """Reset the agent, clear the memory"""
         pass
 
+    @abstractmethod
     def learn(
             self,
-            agent_name: Optional["ConvAgent"],
+            agent_name: Union[list[str], str],
             top_k: int = 10
-    ):
+    ) -> None:
         """Add environment available knowledge to its own memory"""
         texts = self.subscribe_from_env(
             agent_name,
             top_k
         )
-        self.memory.
+        self.memory.save_memory_I(
+            query="environment messages",
+            response=texts,
+            output=ConsoleOutput
+        )
 
     def publish_to_env(
             self,
@@ -130,7 +156,7 @@ class ConvBaseAgent(ABC, BaseModel):
 
     def subscribe_from_env(
             self,
-            topic_name: Union[list[str], str] = None,
+            topic_name: Union[list[str], str],
             top_k: int
         ):
         topic_list = self._get_env_agents()
@@ -154,6 +180,7 @@ class ConvBaseAgent(ABC, BaseModel):
         """Get all the agent names in this same environment"""
         return self.env.get_agents()
 
-    def register_replay(self, ):
+    def register_reply(self, ):
         pass
+    
     
