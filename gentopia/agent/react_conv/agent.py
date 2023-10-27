@@ -49,4 +49,7 @@ class ReactConvAgent(ConvBaseAgent):
 
     intermediate_steps: List[Tuple[AgentAction, str]] = []
     
-    def send(self, )
+    def send(
+            self,
+            message: Union[Dict, str]
+    )
