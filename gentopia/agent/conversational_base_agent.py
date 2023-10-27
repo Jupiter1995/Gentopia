@@ -57,6 +57,10 @@ class ConvBaseAgent(ABC, BaseModel):
     def name(self):
         return self.name
     
+    @name.setter
+    def name(self, new_name):
+        self.name = new_name
+    
     @abstractmethod
     def send(
         self,
@@ -134,6 +138,7 @@ class ConvBaseAgent(ABC, BaseModel):
             output=ConsoleOutput
         )
 
+    @classmethod
     def publish_to_env(
             self,
             message: Union[Dict, str],
@@ -154,6 +159,7 @@ class ConvBaseAgent(ABC, BaseModel):
         if request_ackownledge:
             return ackownledge
 
+    @classmethod
     def subscribe_from_env(
             self,
             topic_name: Union[list[str], str],

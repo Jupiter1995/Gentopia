@@ -1,6 +1,52 @@
+from typing import List, Union, Optional, Tuple, Type
+from pydantic import BaseModel, create_model
 
+from gentopia import PromptTemplate
+
+from gentopia.assembler.task import AgentAction, AgentFinish
 from gentopia.agent.conversational_base_agent import ConvBaseAgent
+from gentopia.model.agent_model import AgentType, AgentOutput
+from gentopia.llm.client.huggingface import HuggingfaceLLMClient
+
+from gentopia.tools.basetool import BaseTool
+
 
 class ReactConvAgent(ConvBaseAgent):
+        """
+    Sequential ReactAgent class inherited from Conversational BaseAgent. Implementing ReAct agent paradigm https://arxiv.org/pdf/2210.03629.pdf
+
+    :param name: Name of the agent, defaults to "ReactAgent".
+    :type name: str, optional
+    :param type: Type of the agent, defaults to AgentType.react.
+    :type type: AgentType, optional
+    :param version: Version of the agent.
+    :type version: str
+    :param description: Description of the agent.
+    :type description: str
+    :param target_tasks: List of target tasks for the agent.
+    :type target_tasks: list[str]
+    :param llm: Language model that the agent uses.
+    :type llm: HuggingfaceLLMClient
+    :param prompt_template: Template used to create prompts for the agent, defaults to None.
+    :type prompt_template: PromptTemplate, optional
+    :param plugins: List of plugins used by the agent, defaults to None.
+    :type plugins: List[Union[BaseTool, BaseAgent]], optional
+    :param examples: Fewshot examplars used for the agent, defaults to None.
+    :type examples: Union[str, List[str]], optional
+    :param args_schema: Schema for the arguments of the agent
+    :type args_schema: Optional[Type[BaseModel]], optional
+    """
+    name: str = "ReactAgent_Conv"
+    type: AgentType = AgentType.react
+    version: str
+    description: str
+    target_tasks: list[str]
+    llm: HuggingfaceLLMClient
+    prompt_template: PromptTemplate
+    plugins: List[BaseTool]
+    examples: Union[str, List[str]] = None
+    args_schema: Optional[Type[BaseModel]] = create_model("ReactArgsSchema", instruction=(str, ...))
+
+    intermediate_steps: List[Tuple[AgentAction, str]] = []
     
-    
+    def send(self, )
