@@ -1,4 +1,5 @@
 import logging
+import asyncio
 
 from collections import defaultdict
 
@@ -87,30 +88,33 @@ class ReactConvAgent(ConvBaseAgent):
         sender: ConvBaseAgent,
         request_reply: bool = None
     ):
-        
+        return 
 
     def generate_reply(
         self,
         message: Union[list[Dict], Dict],
         sender: ConvBaseAgent,
         **kwargs
-    ):
-        if all((message is None, sender is None)):
-            error_msg = f"Either {messages=} or {sender=} must be provided."
-            logger.error(error_msg)
-            raise AssertionError(error_msg)
+    ) -> Union[str, Dict, None]:
+            """
+            Generate llm response based on the received message from User or other agents
 
-        if messages is None:
-            messages = self._messages[sender]
+            :param message: prompts from user or messages from other agents during the conversation
+            :type message: Union[list[Dict], Dict]
+            :param sender: Another conversational agent in the conversation with this agent
+            :type sender: ConvBaseAgent
+            :raises AssertionError: _description_
+            :return: Reply message to send back to the sender
+            :rtype: Union[str, Dict, None]
+            """
+            if all((message is None, sender is None)):
+                error_msg = f"Either {messages=} or {sender=} must be provided."
+                logger.error(error_msg)
+                raise AssertionError(error_msg)
 
-        for reply_func_tuple in self._reply_func_list:
-            reply_func = reply_func_tuple["reply_func"]
-            if exclude and reply_func in exclude:
-                continue
-            if asyncio.coroutines.iscoroutinefunction(reply_func):
-                continue
-            if self._match_trigger(reply_func_tuple["trigger"], sender):
-                final, reply = reply_func(self, messages=messages, sender=sender, config=reply_func_tuple["config"])
-                if final:
-                    return reply
-        return self._default_auto_reply
+            if messages is None:
+                messages = self._messages[sender]
+
+            self.llm.completion(
+                
+            )
