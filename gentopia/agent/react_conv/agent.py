@@ -1,4 +1,8 @@
-from typing import List, Union, Optional, Tuple, Type
+import logging
+
+from collections import defaultdict
+
+from typing import List, Union, Optional, Tuple, Type, Dict
 from pydantic import BaseModel, create_model
 
 from gentopia import PromptTemplate
@@ -10,6 +14,8 @@ from gentopia.llm.client.huggingface import HuggingfaceLLMClient
 
 from gentopia.tools.basetool import BaseTool
 
+
+logger = logging.getLogger(__name__)
 
 class ReactConvAgent(ConvBaseAgent):
         """
@@ -48,8 +54,63 @@ class ReactConvAgent(ConvBaseAgent):
     args_schema: Optional[Type[BaseModel]] = create_model("ReactArgsSchema", instruction=(str, ...))
 
     intermediate_steps: List[Tuple[AgentAction, str]] = []
+    _messages: dict(list) = defaultdict(list)
     
+
     def send(
             self,
-            message: Union[Dict, str]
-    )
+            message: Union[Dict, str],
+            recipiant: ConvBaseAgent,
+            request_reply: bool = None
+    ):
+      recipiant.receive(
+           message,
+           self,
+           request_reply
+      )
+
+    async def a_send(
+            self,
+            message: Union[Dict, str],
+            recipiant: ConvBaseAgent,
+            request_reply: bool = None
+    ):
+     await recipiant.a_receive(
+         message,
+         self,
+         request_reply
+     )
+
+    def receive(
+        self,
+        message: Union[Dict, str],
+        sender: ConvBaseAgent,
+        request_reply: bool = None
+    ):
+        
+
+    def generate_reply(
+        self,
+        message: Union[list[Dict], Dict],
+        sender: ConvBaseAgent,
+        **kwargs
+    ):
+        if all((message is None, sender is None)):
+            error_msg = f"Either {messages=} or {sender=} must be provided."
+            logger.error(error_msg)
+            raise AssertionError(error_msg)
+
+        if messages is None:
+            messages = self._messages[sender]
+
+        for reply_func_tuple in self._reply_func_list:
+            reply_func = reply_func_tuple["reply_func"]
+            if exclude and reply_func in exclude:
+                continue
+            if asyncio.coroutines.iscoroutinefunction(reply_func):
+                continue
+            if self._match_trigger(reply_func_tuple["trigger"], sender):
+                final, reply = reply_func(self, messages=messages, sender=sender, config=reply_func_tuple["config"])
+                if final:
+                    return reply
+        return self._default_auto_reply
