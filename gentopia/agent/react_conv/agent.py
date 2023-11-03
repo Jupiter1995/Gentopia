@@ -19,7 +19,7 @@ from gentopia.tools.basetool import BaseTool
 logger = logging.getLogger(__name__)
 
 class ReactConvAgent(ConvBaseAgent):
-        """
+    """
     Sequential ReactAgent class inherited from Conversational BaseAgent. Implementing ReAct agent paradigm https://arxiv.org/pdf/2210.03629.pdf
 
     :param name: Name of the agent, defaults to "ReactAgent".
@@ -112,9 +112,9 @@ class ReactConvAgent(ConvBaseAgent):
                 logger.error(error_msg)
                 raise AssertionError(error_msg)
 
-            if messages is None:
+            if message is None:
                 messages = self._messages[sender]
 
             self.llm.completion(
-                
+                prompt=messages["content"]
             )
