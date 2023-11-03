@@ -9,7 +9,7 @@ from gentopia.llm.base_llm import BaseLLM
 from gentopia.model.agent_model import AgentType, AgentOutput
 from gentopia.memory.api import MemoryWrapper
 from gentopia.output.console_output import ConsoleOutput
-# from gentopia.environment import Environment -- active this line after Environmentation implementation
+from gentopia.environment.environment import Environment
 from rich import print as rprint
 
 from gentopia.tools import BaseTool
