@@ -156,7 +156,18 @@ class ConvBaseAgent(ABC, BaseModel):
             topic_name: Union[list[str], str],
             request_ackownledge: bool = None
     ):
-        """Publish message to a topic or multiple topics using agent names as topic names"""
+        """
+        Publish message to a topic or multiple topics using agent names as topic names
+
+        :param message: _description_
+        :type message: Union[Dict, str]
+        :param topic_name: _description_
+        :type topic_name: Union[list[str], str]
+        :param request_ackownledge: _description_, defaults to None
+        :type request_ackownledge: bool, optional
+        :return: _description_
+        :rtype: _type_
+        """
 
         if not self.env or not isinstance(self.env, Environment):
             raise("No valid environment found! Please setup the environment for this agent before proceed.")
@@ -191,7 +202,7 @@ class ConvBaseAgent(ABC, BaseModel):
             )
             return knowledge_message
         else:
-            raise("Subscribed topic(s) was not available to current environment!")
+            raise("Subscribed agent(s) was not available to current environment!")
     
     def _get_env_agents(self):
         """Get all the agent names in this same environment"""
