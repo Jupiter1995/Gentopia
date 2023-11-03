@@ -1,4 +1,8 @@
+from typing import Union, Optional
+
 from gentopia.agent.conversational_base_agent import ConvBaseAgent
+
+
 class Environment:
     def __init__(self):
         self.agents: Dict[str, ConvBaseAgent] = {}  # Dictionary to store active agents
@@ -29,7 +33,7 @@ class Environment:
             self.messages[agent_name] = []
         self.messages[agent_name].append(message)
 
-    def subscribe(self, agent: ConvBaseAgent):
+    def subscribe(self, topics: Union[list(str), str], top_k: Optional[int] = 5):
         """
         Retrieve messages sent to an agent from the environment.
 
