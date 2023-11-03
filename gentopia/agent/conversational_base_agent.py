@@ -153,8 +153,7 @@ class ConvBaseAgent(ABC, BaseModel):
     def publish_to_env(
             self,
             message: Union[Dict, str],
-            topic_name: Union[list[str], str],
-            request_ackownledge: bool = None
+            request_ackownledge: Optional[bool] = False
     ):
         """
         Publish message to a topic or multiple topics using agent names as topic names
@@ -174,7 +173,7 @@ class ConvBaseAgent(ABC, BaseModel):
         
         ackownledge = self.env.publish(
             message,
-            topic_name,
+            self.name,
             request_ackownledge
         )
 
