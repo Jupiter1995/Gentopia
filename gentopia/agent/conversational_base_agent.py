@@ -54,10 +54,34 @@ class ConvBaseAgent(ABC, BaseModel):
     memory: Optional[MemoryWrapper]
     
     @abstractmethod
+    def initiate_conversation(
+        self,
+        recipient: "ConvAgent",
+        clear_history: Optional[bool] = True,
+        request_reply: Optional[bool] = True,
+        **context
+    ):
+        """
+        _summary_
+
+        :param recipient: _description_
+        :type recipient: ConvAgent
+        :param clear_history: whether to clear the conversation history with the recipient agent, defaults to True
+        :type clear_history: Optional[bool], optional
+        :return: _description_
+        :rtype: _type_
+        """
+        if clear_history:
+            self.clear_history(recipient)
+
+        messages = self.generate_first_message(**context)
+        self.send(messages, recipient=recipient, )
+
+    @abstractmethod
     def send(
         self,
         message: Union[Dict, str],
-        recipiant: "ConvAgent",
+        recipient: "ConvAgent",
         request_reply: bool = None
     ):
         """Send method: send message to another agent"""
@@ -66,7 +90,7 @@ class ConvBaseAgent(ABC, BaseModel):
     async def a_send(
             self,
             message: Union[Dict, str],
-            recipiant: "ConvAgent",
+            recipient: "ConvAgent",
             request_reply: bool = None
     ):
         """Async send method: send message to another agent"""
@@ -106,11 +130,6 @@ class ConvBaseAgent(ABC, BaseModel):
             sender: "ConvAgent",
             **kwargs
     ):
-        pass
-
-    @abstractmethod
-    def reset(self):
-        """Reset the agent, clear the memory"""
         pass
 
     @abstractmethod

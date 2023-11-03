@@ -15,7 +15,7 @@ class Environment:
         self.agents[agent_name] = agent
 
 
-    def publish(self, agent: ConvBaseAgent, message: str):
+    def publish(self, agent: ConvBaseAgent, message: str, **kwargs):
         """
         Store a message from an agent in the environment.
 

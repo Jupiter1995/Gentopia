@@ -10,6 +10,7 @@ from gentopia import PromptTemplate
 
 from gentopia.assembler.task import AgentAction, AgentFinish
 from gentopia.agent.conversational_base_agent import ConvBaseAgent
+from gentopia.agent.react import ReactAgent
 from gentopia.model.agent_model import AgentType, AgentOutput
 from gentopia.llm.client.huggingface import HuggingfaceLLMClient
 
@@ -18,7 +19,7 @@ from gentopia.tools.basetool import BaseTool
 
 logger = logging.getLogger(__name__)
 
-class ReactConvAgent(ConvBaseAgent):
+class ReactConvAgent(ConvBaseAgent, ReactAgent):
     """
     Sequential ReactAgent class inherited from Conversational BaseAgent. Implementing ReAct agent paradigm https://arxiv.org/pdf/2210.03629.pdf
 
@@ -61,10 +62,10 @@ class ReactConvAgent(ConvBaseAgent):
     def send(
             self,
             message: Union[Dict, str],
-            recipiant: ConvBaseAgent,
+            recipient: ConvBaseAgent,
             request_reply: bool = None
     ):
-      recipiant.receive(
+      recipient.receive(
            message,
            self,
            request_reply
@@ -73,10 +74,10 @@ class ReactConvAgent(ConvBaseAgent):
     async def a_send(
             self,
             message: Union[Dict, str],
-            recipiant: ConvBaseAgent,
+            recipient: ConvBaseAgent,
             request_reply: bool = None
     ):
-     await recipiant.a_receive(
+     await recipient.a_receive(
          message,
          self,
          request_reply
@@ -88,7 +89,29 @@ class ReactConvAgent(ConvBaseAgent):
         sender: ConvBaseAgent,
         request_reply: bool = None
     ):
-        return 
+        if not request_reply: return
+
+        reply = self.generate_reply(
+            message,
+            sender
+        )
+        return self.send(
+            reply,
+            sender
+        )
+    
+    async def a_receive(self, message: Dict | str, sender: ConvBaseAgent, request_reply: bool = None):
+        if not request_reply: return
+
+        reply = await self.a_generate_reply(
+            message,
+            sender
+        )
+        if reply:
+            await self.a_send(
+                reply,
+                sender
+            )
 
     def generate_reply(
         self,
@@ -115,6 +138,12 @@ class ReactConvAgent(ConvBaseAgent):
             if message is None:
                 messages = self._messages[sender]
 
-            self.llm.completion(
-                prompt=messages["content"]
-            )
+            if isinstance(messages, dict):
+                prompt = messages["content"]
+            else:
+                prompt = messages
+
+            reply_completion = self.llm.completion(prompt=prompt)
+            return reply_completion.to_dict()
+
+    
