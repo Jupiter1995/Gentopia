@@ -1,4 +1,9 @@
-from typing import List, Union, Optional, Tuple, Type
+import logging
+import asyncio
+
+from collections import defaultdict
+
+from typing import List, Union, Optional, Tuple, Type, Dict
 from pydantic import BaseModel, create_model
 
 from gentopia import PromptTemplate
@@ -11,8 +16,10 @@ from gentopia.llm.client.huggingface import HuggingfaceLLMClient
 from gentopia.tools.basetool import BaseTool
 
 
+logger = logging.getLogger(__name__)
+
 class ReactConvAgent(ConvBaseAgent):
-        """
+    """
     Sequential ReactAgent class inherited from Conversational BaseAgent. Implementing ReAct agent paradigm https://arxiv.org/pdf/2210.03629.pdf
 
     :param name: Name of the agent, defaults to "ReactAgent".
@@ -48,8 +55,66 @@ class ReactConvAgent(ConvBaseAgent):
     args_schema: Optional[Type[BaseModel]] = create_model("ReactArgsSchema", instruction=(str, ...))
 
     intermediate_steps: List[Tuple[AgentAction, str]] = []
+    _messages: dict(list) = defaultdict(list)
     
+
     def send(
             self,
-            message: Union[Dict, str]
-    )
+            message: Union[Dict, str],
+            recipiant: ConvBaseAgent,
+            request_reply: bool = None
+    ):
+      recipiant.receive(
+           message,
+           self,
+           request_reply
+      )
+
+    async def a_send(
+            self,
+            message: Union[Dict, str],
+            recipiant: ConvBaseAgent,
+            request_reply: bool = None
+    ):
+     await recipiant.a_receive(
+         message,
+         self,
+         request_reply
+     )
+
+    def receive(
+        self,
+        message: Union[Dict, str],
+        sender: ConvBaseAgent,
+        request_reply: bool = None
+    ):
+        return 
+
+    def generate_reply(
+        self,
+        message: Union[list[Dict], Dict],
+        sender: ConvBaseAgent,
+        **kwargs
+    ) -> Union[str, Dict, None]:
+            """
+            Generate llm response based on the received message from User or other agents
+
+            :param message: prompts from user or messages from other agents during the conversation
+            :type message: Union[list[Dict], Dict]
+            :param sender: Another conversational agent in the conversation with this agent
+            :type sender: ConvBaseAgent
+            :raises AssertionError: _description_
+            :return: Reply message to send back to the sender
+            :rtype: Union[str, Dict, None]
+            """
+            if all((message is None, sender is None)):
+                error_msg = f"Either {messages=} or {sender=} must be provided."
+                logger.error(error_msg)
+                raise AssertionError(error_msg)
+
+            if message is None:
+                messages = self._messages[sender]
+
+            self.llm.completion(
+                prompt=messages["content"]
+            )

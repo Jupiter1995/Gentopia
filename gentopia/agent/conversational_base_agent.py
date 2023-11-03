@@ -52,14 +52,6 @@ class ConvBaseAgent(ABC, BaseModel):
     plugins: List[Any]
     args_schema: Optional[Type[BaseModel]] = create_model("ArgsSchema", instruction=(str, ...))
     memory: Optional[MemoryWrapper]
-
-    @property
-    def name(self):
-        return self.name
-    
-    @name.setter
-    def name(self, new_name):
-        self.name = new_name
     
     @abstractmethod
     def send(

@@ -135,6 +135,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+PersonalTrainerGPT/
 
 # Spyder project settings
 .spyderproject
