@@ -75,7 +75,7 @@ class ConvBaseAgent(ABC, BaseModel):
             self.clear_history(recipient)
 
         messages = self.generate_first_message(**context)
-        self.send(messages, recipient=recipient, )
+        self.send(messages, recipient=recipient, request_reply=request_reply)
 
     @abstractmethod
     def send(
@@ -132,7 +132,16 @@ class ConvBaseAgent(ABC, BaseModel):
     ):
         pass
 
-    @abstractmethod
+    def clear_history(self, recipient: "ConvAgent"):
+        """
+        Clear conversation history with the recipient agent
+
+        :param recipient: _description_
+        :type recipient: ConvAgent
+        """
+
+    def generate_first_message(self,)
+
     def learn(
             self,
             agent_name: Union[list[str], str],
