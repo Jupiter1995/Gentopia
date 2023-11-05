@@ -10,3 +10,6 @@
 
 #### `get_agents()` [needs to be implemented]
 - retrieve back all the agent names in current environment.
+
+#### Other questions need to be solved
+- when intializing different agents, sometime we want to set the same env to those agents, but sometimes we don't. We need to a way to retrieve the initialized environment.

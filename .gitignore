@@ -6,7 +6,7 @@ notebooks/test.ipynb
 .chroma
 node_modules/
 .vscode/
-
+gentopia/multi_agent_test/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
