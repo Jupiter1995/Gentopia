@@ -19,6 +19,7 @@ from gentopia.model.param_model import OpenAIParamModel, HuggingfaceParamModel
 from gentopia.tools import *
 from gentopia.tools import BaseTool
 from gentopia.tools.basetool import ToolMetaclass
+from gentopia.environment.environment import Environment
 
 
 class AgentAssembler:
@@ -82,7 +83,8 @@ class AgentAssembler:
             llm=self._get_llm(config['llm']),
             prompt_template=prompt_template,
             plugins=self._parse_plugins(config.get('plugins', [])),
-            memory=self._parse_memory(config.get('memory', [])) # initialize memory
+            memory=self._parse_memory(config.get('memory', [])), # initialize memory
+            environment=self._set_env(config.get("environment", []))
         )
         return agent
 
@@ -242,3 +244,9 @@ class AgentAssembler:
         """
         for key in obj:
             os.environ[key] = obj.get(key)
+    
+    def _set_env(self, obj) -> Environment:
+        if isinstance(obj, dict) and "name" in obj:
+            return Environment(obj["name"])
+        else:
+            raise("Environment needs a name before set it up.")

@@ -146,4 +146,3 @@ class ReactConvAgent(ConvBaseAgent, ReactAgent):
             reply_completion = self.llm.completion(prompt=prompt)
             return reply_completion.to_dict()
 
-    

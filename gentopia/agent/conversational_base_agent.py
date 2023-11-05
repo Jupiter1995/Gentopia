@@ -1,6 +1,7 @@
 import io
 from abc import ABC, ABCMeta, abstractmethod
 from typing import List, Dict, Union, Any, Optional, Type, Callable
+from collections import defaultdict
 
 from gentopia import PromptTemplate
 from pydantic import BaseModel, create_model
@@ -52,27 +53,28 @@ class ConvBaseAgent(ABC, BaseModel):
     plugins: List[Any]
     args_schema: Optional[Type[BaseModel]] = create_model("ArgsSchema", instruction=(str, ...))
     memory: Optional[MemoryWrapper]
+
+    _conv_history: Dict(list) = defaultdict(list)
     
-    @abstractmethod
     def initiate_conversation(
         self,
         recipient: "ConvAgent",
         clear_history: Optional[bool] = True,
         request_reply: Optional[bool] = True,
         **context
-    ):
+    ) -> None:
         """
-        _summary_
+        Initiate the conversation with other agent
 
-        :param recipient: _description_
+        :param recipient: The agent will be talked with
         :type recipient: ConvAgent
         :param clear_history: whether to clear the conversation history with the recipient agent, defaults to True
         :type clear_history: Optional[bool], optional
-        :return: _description_
-        :rtype: _type_
+        :return: None
+        :rtype: None
         """
         if clear_history:
-            self.clear_history(recipient)
+            self.clear_conv_history(recipient)
 
         messages = self.generate_first_message(**context)
         self.send(messages, recipient=recipient, request_reply=request_reply)
@@ -132,15 +134,21 @@ class ConvBaseAgent(ABC, BaseModel):
     ):
         pass
 
-    def clear_history(self, recipient: "ConvAgent"):
+    def clear_conv_history(self, recipient: "ConvAgent"):
         """
         Clear conversation history with the recipient agent
+        (Update to utilize memory in the future)
 
-        :param recipient: _description_
+        :param recipient: The agent associated with the targeted conversation history
         :type recipient: ConvAgent
         """
+        if recipient in self._conv_history:
+            self._conv_history[recipient].clear()
+        else:
+            self._conv_history.clear()
 
-    def generate_first_message(self,)
+    def generate_first_message(self,**context):
+        return context["message"]
 
     def learn(
             self,
@@ -219,4 +227,9 @@ class ConvBaseAgent(ABC, BaseModel):
     def register_reply(self, ):
         pass
     
-    
+    @property
+    def conversation_history(self, recipient: Optional["ConvAgent"] = None):
+        if recipient:
+            return self._conv_history[recipient]
+        else:
+            return self._conv_history

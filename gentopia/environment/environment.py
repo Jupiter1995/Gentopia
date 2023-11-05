@@ -1,13 +1,26 @@
+import warnings
 from typing import Union, Optional
 
 from gentopia.agent.conversational_base_agent import ConvBaseAgent
 
 
 class Environment:
-    def __init__(self):
+    def __init__(self, name: str):
+
+
         self.agents: Dict[str, ConvBaseAgent] = {}  # Dictionary to store active agents
         self.messages = {}  # Dictionary to store messages from agents
+        self._name = name
         
+    @property
+    def name(self):
+        return self._name
+    
+    @name.setter
+    def name(self, new_name: str) -> None:
+        warnings.warn("You are changing the name of current environment. Please make sure the new name is still unique.")
+        self._name = new_name
+
     def add_agent(self, agent: ConvBaseAgent):
         """
         Add a ConvBaseAgent to the environment.
@@ -33,7 +46,7 @@ class Environment:
             self.messages[agent_name] = []
         self.messages[agent_name].append(message)
 
-    def subscribe(self, topics: Union[list(str), str], top_k: Optional[int] = 5):
+    def subscribe(self, topics: Union[list(ConvBaseAgent), ConvBaseAgent], top_k: Optional[int] = 5):
         """
         Retrieve messages sent to an agent from the environment.
 
