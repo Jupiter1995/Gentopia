@@ -1,0 +1,23 @@
+name: mark
+type: react_conv
+version: 0.0.1
+description: mark is a professional personal trainer. He is able to create customized plans for different people depends on their expectations and body conditions.
+target_tasks:
+  - create training plans and strategies.
+  - collaborate with nutritionist to adjust training plans.
+prompt_template: !prompt multi_agent_test.agents.personal_trainer.prompt.PromptOfTrianer
+llm:
+  model_name: baize
+  params:
+    temperature: 0.5
+    top_p: 0.9
+    repetition_penalty: 0.0
+    max_tokens: 1024
+environment:
+  name: training_plan_test01
+plugins:
+  - name: google_search
+  - name: arxiv_search
+    param:
+      top_k: 3
+  - name: web_page
