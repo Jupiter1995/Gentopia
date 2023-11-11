@@ -5,7 +5,7 @@ from string import Formatter
 from typing import Any, Dict, List
 from pydantic import BaseModel
 
-from pydantic import Extra, root_validator
+from pydantic import Extra, model_validator, root_validator
 
 
 class PromptTemplate(BaseModel):
@@ -29,7 +29,7 @@ class PromptTemplate(BaseModel):
     def format(self, **kwargs: Any) -> str:
         return self.template.format(**kwargs)
 
-    @root_validator()
+    @model_validator(mode='after')
     def template_is_valid(cls, values: Dict) -> Dict:
         """Check that template and input variables are consistent."""
         if values["validate_template"]:
