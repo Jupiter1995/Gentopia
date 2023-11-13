@@ -53,6 +53,7 @@ class ConvBaseAgent(ABC, BaseModel):
     plugins: List[Any]
     args_schema: Optional[Type[BaseModel]] = create_model("ArgsSchema", instruction=(str, ...))
     memory: Optional[MemoryWrapper]
+    max_consecutive_auto_reply: Optional[int] = 100
 
     _conv_history: Dict(list) = defaultdict(list)
     
@@ -78,6 +79,7 @@ class ConvBaseAgent(ABC, BaseModel):
 
         messages = self.generate_first_message(**context)
         self.send(messages, recipient=recipient, request_reply=request_reply)
+        
 
     @abstractmethod
     def send(

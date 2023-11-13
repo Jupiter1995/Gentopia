@@ -17,7 +17,7 @@ from typing import (
     Type,
     TypeVar,
 )
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, model_validator
 from gentopia.memory.embeddings import Embeddings
 from gentopia.memory.document import Document
 from gentopia.memory.utils import get_prompt_input_key
@@ -659,7 +659,7 @@ class VectorStoreRetriever(BaseRetriever, BaseModel):
 
         arbitrary_types_allowed = True
 
-    @root_validator()
+    @model_validator(mode='before')
     def validate_search_type(cls, values: Dict) -> Dict:
         """Validate search type."""
         search_type = values["search_type"]

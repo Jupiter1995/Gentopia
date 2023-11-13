@@ -11,7 +11,8 @@ from gentopia import PromptTemplate
 from gentopia.assembler.task import AgentAction, AgentFinish
 from gentopia.agent.conversational_base_agent import ConvBaseAgent
 from gentopia.agent.react import ReactAgent
-from gentopia.model.agent_model import AgentType, AgentOutput
+from gentopia.model.agent_model import AgentType
+from gentopia.output.console_output import ConsoleOutput
 from gentopia.llm.client.huggingface import HuggingfaceLLMClient
 
 from gentopia.tools.basetool import BaseTool
@@ -117,6 +118,7 @@ class ReactConvAgent(ConvBaseAgent, ReactAgent):
         self,
         message: Union[list[Dict], Dict],
         sender: ConvBaseAgent,
+        output: Optional[ConsoleOutput()] = ConsoleOutput()
         **kwargs
     ) -> Union[str, Dict, None]:
             """
@@ -142,7 +144,16 @@ class ReactConvAgent(ConvBaseAgent, ReactAgent):
                 prompt = messages["content"]
             else:
                 prompt = messages
+                
+            instruction = self._compose_prompt(prompt)
+            reply_completion = self.llm.completion(prompt=instruction)
 
-            reply_completion = self.llm.completion(prompt=prompt)
+            content = ""
+            output.print(f"[blue]{self.name}: ")
+            for i in reply_completion:
+                content += i.content
+                output.panel_print(i.content, self.name, True)
+            output.clear()
+
             return reply_completion.to_dict()
 

@@ -5,7 +5,7 @@ from string import Formatter
 from typing import Any, Dict, List
 from pydantic import BaseModel
 
-from pydantic import Extra, model_validator, root_validator
+from pydantic import model_validator, root_validator
 
 
 class PromptTemplate(BaseModel):
@@ -21,25 +21,30 @@ class PromptTemplate(BaseModel):
     input_variables: List[str]
     template: str
     validate_template: bool = True
-    skip_on_failure = True
+    skip_on_failure: bool = True
 
     class Config:
-        extra = Extra.forbid
+        extra = 'forbid'
 
     def format(self, **kwargs: Any) -> str:
         return self.template.format(**kwargs)
 
     @model_validator(mode='after')
-    def template_is_valid(cls, values: Dict) -> Dict:
+    @classmethod
+    def template_is_valid(cls, values: Any) -> Any:
         """Check that template and input variables are consistent."""
-        if values["validate_template"]:
-            try:
-                dummy_input = {var: "" for var in values["input_variables"]}
-                Formatter().format(values["template"], **dummy_input)
-            except KeyError as e:
-                raise ValueError(
-                    "Invalid prompt schema; check for mismatched or missing input parameters. "
-                    + str(e)
-                )
+        if isinstance(values, Dict):
+            # for k, v in values.items():
+            #     print(f"key: {k}, value: {v}")
+
+            if values["validate_template"]:
+                try:
+                    dummy_input = {var: "" for var in values["input_variables"]}
+                    Formatter().format(values["template"], **dummy_input)
+                except KeyError as e:
+                    raise ValueError(
+                        "Invalid prompt schema; check for mismatched or missing input parameters. "
+                        + str(e)
+                    )
         return values
 
