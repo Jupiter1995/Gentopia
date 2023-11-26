@@ -16,7 +16,7 @@ from typing import (
 )
 
 import numpy as np
-from pydantic import BaseModel, Extra, model_validator
+from pydantic import BaseModel, Extra, root_validator
 from tenacity import (
     AsyncRetrying,
     before_sleep_log,
@@ -188,7 +188,7 @@ class OpenAIEmbeddings(BaseModel, Embeddings):
 
         extra = Extra.forbid
 
-    @model_validator(mode="before")
+    @root_validator
     def validate_environment(cls, values: Dict) -> Dict:
         """Validate that api key and python package exists in environment."""
         values["openai_api_key"] = get_from_dict_or_env(

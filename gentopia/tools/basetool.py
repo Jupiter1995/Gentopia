@@ -12,7 +12,7 @@ from pydantic import (
     create_model,
     validate_arguments,
 )
-from pydantic._internal._model_construction import ModelMetaclass
+from pydantic.main import ModelMetaclass
 
 
 class SchemaAnnotationError(TypeError):
@@ -57,7 +57,7 @@ class ChildTool(BaseTool):
         print(f"namespace vals: {[v for k,v in dct.items()]} \n")
         print("----test block end----")
         # Pass through to Pydantic's metaclass
-        return super().__new__(cls, cls_name=name, bases=bases, namespace=dct)
+        return super().__new__(cls, name, bases, dct)
 
 
 def _create_subset_model(

@@ -2,7 +2,7 @@ import os
 from typing import Union, Dict, Optional
 
 from gentopia.prompt import PromptTemplate
-from gentopia.agent.base_agent import BaseAgent
+from gentopia.agent.conversational_base_agent import ConvBaseAgent
 from gentopia.assembler.config import Config
 from gentopia.llm import OpenAIGPTClient
 from gentopia.utils.util import check_huggingface
@@ -47,7 +47,7 @@ class AgentAssembler:
         elif config is not None:
             self.config = Config.from_dict(config)
 
-        self.plugins: Dict[str, Union[BaseAgent, BaseTool]] = dict()
+        self.plugins: Dict[str, Union[ConvBaseAgent, BaseTool]] = dict()
         self.manager: Optional[BaseLLMManager] = None
 
     def get_agent(self, config=None):
@@ -58,7 +58,7 @@ class AgentAssembler:
             :type config: dict, optional
             :raises AssertionError: If the configuration is None.
             :return: An agent instance.
-            :rtype: BaseAgent
+            :rtype: ConvBaseAgent
         """
         if config is None:
             config = self.config
