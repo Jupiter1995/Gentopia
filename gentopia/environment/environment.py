@@ -1,10 +1,18 @@
 from typing import List
+from pydantic import BaseModel
 
-class Environment:
-    def __init__(self, memory: VectorStore):
-        self.memory = memory
+from gentopia.memory.vectorstores.pinecone import Pinecone
+# from gentopia.agent.conversational_base_agent import ConvBaseAgent
+from gentopia.memory.document import Document
 
-    def subscribe(self, agent: ConvBaseAgent):
+class Environment(BaseModel):
+    
+    memory: Pinecone
+
+    class Config:
+        arbitrary_types_allowed = True
+        
+    def subscribe(self, agent: "ConvBaseAgent"):
         # Convert agent information to a format that can be stored in the VectorStore
         agent_info = agent.get_agent_info()  # Method to extract relevant information
         # Create a document with the agent information
@@ -16,12 +24,12 @@ class Environment:
         document = Document(page_content=data)
         self.memory.add_documents([document])
 
-    def get_agents(self) -> List[ConvBaseAgent]:
+    def get_agents(self) -> List["ConvBaseAgent"]:
         agents = []
         documents = self.memory.retriever.get_relevant_documents("")
         for doc in documents:
             # Reconstruct agents from the document content
             agent_info = doc.page_content
-            agent = ConvBaseAgent.create_from_info(agent_info)  # Method to reconstruct agent from stored information
+            # agent = "ConvBaseAgent".create_from_info(agent_info)  # Method to reconstruct agent from stored information
             agents.append(agent)
         return agents

@@ -5,7 +5,7 @@ description: mark is a professional personal trainer. He is able to create custo
 target_tasks:
   - create training plans and strategies.
   - collaborate with nutritionist to adjust training plans.
-prompt_template: !prompt multi_agent_test.agents.personal_trainer.prompt.PromptOfTrianer
+prompt_template: !prompt multi_agent_test.agents.mark.prompt.PromptOfTrainer
 llm:
   model_name: baize
   params:

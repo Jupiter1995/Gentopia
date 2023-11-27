@@ -1,6 +1,6 @@
 import io
 from abc import ABC, ABCMeta, abstractmethod
-from typing import List, Dict, Union, Any, Optional, Type, Callable
+from typing import List, Dict, Union, Any, Optional, Type, DefaultDict
 from collections import defaultdict
 
 from gentopia import PromptTemplate
@@ -55,7 +55,7 @@ class ConvBaseAgent(ABC, BaseModel):
     memory: Optional[MemoryWrapper]
     max_consecutive_auto_reply: Optional[int] = 100
 
-    _conv_history: Dict(list) = defaultdict(list)
+    _conv_history: DefaultDict[Any, List] = defaultdict(list)
     
     def initiate_conversation(
         self,

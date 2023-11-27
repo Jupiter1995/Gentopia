@@ -10,7 +10,7 @@ from pydantic import create_model, BaseModel
 
 from gentopia.agent.base_agent import BaseAgent
 from gentopia.assembler.task import AgentAction, AgentFinish
-from gentopia.llm.client.openai import OpenAIGPTClient
+from gentopia.llm.client.huggingface import HuggingfaceLLMClient
 from gentopia.model.agent_model import AgentType, AgentOutput
 from gentopia.utils.cost_helpers import calculate_cost
 
@@ -47,7 +47,7 @@ class ReactAgent(BaseAgent):
     version: str
     description: str
     target_tasks: list[str]
-    llm: OpenAIGPTClient
+    llm: HuggingfaceLLMClient
     prompt_template: PromptTemplate
     plugins: List[Union[BaseTool, BaseAgent]]
     examples: Union[str, List[str]] = None

@@ -20,8 +20,8 @@ def main():
     # nutritionist = args.name_nutrition
     # print_agent = args.print_agent
 
-    trainer = "personal_trainer"
-    nutritionist = "nutrition"
+    trainer = "mark"
+    nutritionist = "elena"
     print_agent = "True"
 
     # check if agent_name is under directory ./gentpool/pool/

@@ -3,7 +3,7 @@ import asyncio
 
 from collections import defaultdict
 
-from typing import List, Union, Optional, Tuple, Type, Dict
+from typing import List, Union, Optional, Tuple, Type, DefaultDict, Any, Dict
 from pydantic import BaseModel, create_model
 
 from gentopia import PromptTemplate
@@ -57,7 +57,7 @@ class ReactConvAgent(ConvBaseAgent, ReactAgent):
     args_schema: Optional[Type[BaseModel]] = create_model("ReactArgsSchema", instruction=(str, ...))
 
     intermediate_steps: List[Tuple[AgentAction, str]] = []
-    _messages: dict(list) = defaultdict(list)
+    _messages: DefaultDict[Any, List] = defaultdict(list)
     
 
     def send(
@@ -101,7 +101,7 @@ class ReactConvAgent(ConvBaseAgent, ReactAgent):
             sender
         )
     
-    async def a_receive(self, message: Dict | str, sender: ConvBaseAgent, request_reply: bool = None):
+    async def a_receive(self, message: Union[Dict, str], sender: ConvBaseAgent, request_reply: bool = None):
         if not request_reply: return
 
         reply = await self.a_generate_reply(
@@ -118,7 +118,7 @@ class ReactConvAgent(ConvBaseAgent, ReactAgent):
         self,
         message: Union[list[Dict], Dict],
         sender: ConvBaseAgent,
-        output: Optional[ConsoleOutput()] = ConsoleOutput()
+        output: Optional[ConsoleOutput()] = ConsoleOutput(),
         **kwargs
     ) -> Union[str, Dict, None]:
             """

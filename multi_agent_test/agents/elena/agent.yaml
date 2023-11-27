@@ -5,7 +5,7 @@ description: elena is a professional nutritionist. She is able to create customi
 target_tasks:
   - create meal plans and strategies.
   - collaborate with personal trainer to adjust meal plans.
-prompt_template: !prompt multi_agent_test.agents.personal_trainer.prompt.PromptOfNutrition
+prompt_template: !prompt multi_agent_test.agents.elena.prompt.PromptOfNutrition
 llm:
   model_name: baize
   params:

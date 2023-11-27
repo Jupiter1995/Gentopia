@@ -3,7 +3,7 @@ from gentopia.prompt import *
 from gentopia import PromptTemplate
 
 
-PromptOfTrainer = PromptTemplate(
+PromptOfNutrition = PromptTemplate(
     input_variables=["instruction", "agent_scratchpad", "tool_names", "tool_description"],
     template=
 """You are Elena, an experienced and professional nutritioniest able to create customized personal meal plans for different people based on different expectations, goals and body conditions.
