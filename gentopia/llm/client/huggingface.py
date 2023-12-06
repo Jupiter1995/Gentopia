@@ -200,10 +200,11 @@ class HuggingfaceLLMClient(BaseLLM, BaseModel):
         else:
             inputs = tokenizer(prompt, return_tensors="pt")
         try:
-            outputs = model.generate(inputs=inputs.input_ids,
+            outputs = model.generate(inputs=inputs,
                                      temperature=self.params.temperature,
                                      top_p=self.params.top_p,
                                      max_new_tokens=self.params.max_new_tokens,
+                                     do_sample=self.params.do_sample,
                                      **kwargs
                                      )
             completion = tokenizer.decode(outputs[:, inputs.input_ids.shape[-1]:][0], skip_special_tokens=True)

@@ -151,13 +151,16 @@ class ReactConvAgent(ConvAgent, ReactAgent):
                 
             instruction = self._compose_prompt(prompt)
             reply_completion = self.llm.completion(prompt=instruction)
-
+            
+            print(f"completion type: {reply_completion}, should be BaseCompletion")
+            print("-------")
+            
             content = ""
             output.print(f"[blue]{self.name}: ")
             for i in reply_completion:
                 content += i.content
                 output.panel_print(i.content, self.name, True)
             output.clear()
-
+            print(f"generated reply message: {reply_completion.to_dict()}")
             return reply_completion.to_dict()
 
