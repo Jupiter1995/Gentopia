@@ -7,7 +7,7 @@ target_tasks:
   - collaborate with nutritionist to adjust training plans.
 prompt_template: !prompt multi_agent_test.agents.mark.prompt.PromptOfTrainer
 llm:
-  model_name: baize
+  model_name: camel-5b
   params:
     temperature: 0.5
     top_p: 0.9

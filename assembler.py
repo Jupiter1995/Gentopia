@@ -37,7 +37,7 @@ def main():
     trainer_assembler = AgentAssembler(file=trainer_config_path)
     nutritionist_assembler = AgentAssembler(file=nutritionist_config_path)
 
-    begin_messages = input("Please input your expectations of your training goal and also your food preference:")
+    begin_messages = input("Please input your expectations of your training goal and also your food preference: \n")
 
     # # assembler.manager = LocalLLMManager()
     # print(f">>> Assembling agent {agent_name}...")

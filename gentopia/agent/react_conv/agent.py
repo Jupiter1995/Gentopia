@@ -8,8 +8,8 @@ from pydantic import BaseModel, create_model
 
 from gentopia import PromptTemplate
 
-from gentopia.assembler.task import AgentAction, AgentFinish
-from gentopia.agent.conversational_base_agent import ConvBaseAgent
+from gentopia.assembler.task import AgentAction
+from gentopia.agent.conversational_agent import ConvAgent
 from gentopia.agent.react import ReactAgent
 from gentopia.model.agent_model import AgentType
 from gentopia.output.console_output import ConsoleOutput
@@ -20,7 +20,7 @@ from gentopia.tools.basetool import BaseTool
 
 logger = logging.getLogger(__name__)
 
-class ReactConvAgent(ConvBaseAgent, ReactAgent):
+class ReactConvAgent(ConvAgent, ReactAgent):
     """
     Sequential ReactAgent class inherited from Conversational BaseAgent. Implementing ReAct agent paradigm https://arxiv.org/pdf/2210.03629.pdf
 
@@ -63,7 +63,7 @@ class ReactConvAgent(ConvBaseAgent, ReactAgent):
     def send(
             self,
             message: Union[Dict, str],
-            recipient: ConvBaseAgent,
+            recipient: ConvAgent,
             request_reply: bool = None
     ):
       recipient.receive(
@@ -75,7 +75,7 @@ class ReactConvAgent(ConvBaseAgent, ReactAgent):
     async def a_send(
             self,
             message: Union[Dict, str],
-            recipient: ConvBaseAgent,
+            recipient: ConvAgent,
             request_reply: bool = None
     ):
      await recipient.a_receive(
@@ -87,9 +87,11 @@ class ReactConvAgent(ConvBaseAgent, ReactAgent):
     def receive(
         self,
         message: Union[Dict, str],
-        sender: ConvBaseAgent,
+        sender: ConvAgent,
         request_reply: bool = None
     ):
+        self._messages[sender.name].append(message)
+        print(f"received message: {message}")
         if not request_reply: return
 
         reply = self.generate_reply(
@@ -101,7 +103,9 @@ class ReactConvAgent(ConvBaseAgent, ReactAgent):
             sender
         )
     
-    async def a_receive(self, message: Union[Dict, str], sender: ConvBaseAgent, request_reply: bool = None):
+    async def a_receive(self, message: Union[Dict, str], sender: ConvAgent, request_reply: bool = None):
+        self._messages[sender.name].append(message)
+
         if not request_reply: return
 
         reply = await self.a_generate_reply(
@@ -117,8 +121,8 @@ class ReactConvAgent(ConvBaseAgent, ReactAgent):
     def generate_reply(
         self,
         message: Union[list[Dict], Dict],
-        sender: ConvBaseAgent,
-        output: Optional[ConsoleOutput()] = ConsoleOutput(),
+        sender: ConvAgent,
+        output: Optional[ConsoleOutput] = ConsoleOutput(),
         **kwargs
     ) -> Union[str, Dict, None]:
             """
@@ -127,23 +131,23 @@ class ReactConvAgent(ConvBaseAgent, ReactAgent):
             :param message: prompts from user or messages from other agents during the conversation
             :type message: Union[list[Dict], Dict]
             :param sender: Another conversational agent in the conversation with this agent
-            :type sender: ConvBaseAgent
+            :type sender: ConvAgent
             :raises AssertionError: _description_
             :return: Reply message to send back to the sender
             :rtype: Union[str, Dict, None]
             """
             if all((message is None, sender is None)):
-                error_msg = f"Either {messages=} or {sender=} must be provided."
+                error_msg = f"Either {message=} or {sender=} must be provided."
                 logger.error(error_msg)
                 raise AssertionError(error_msg)
 
             if message is None:
-                messages = self._messages[sender]
+                message = self._messages[sender]
 
-            if isinstance(messages, dict):
-                prompt = messages["content"]
+            if isinstance(message, dict):
+                prompt = message["content"]
             else:
-                prompt = messages
+                prompt = message
                 
             instruction = self._compose_prompt(prompt)
             reply_completion = self.llm.completion(prompt=instruction)

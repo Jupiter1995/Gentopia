@@ -6,8 +6,8 @@ from gentopia.memory.vectorstores.pinecone import Pinecone
 from gentopia.memory.document import Document
 
 class Environment(BaseModel):
-    
-    memory: Pinecone
+    name: str
+    memory: Pinecone 
 
     class Config:
         arbitrary_types_allowed = True

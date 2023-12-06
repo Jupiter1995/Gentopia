@@ -41,6 +41,7 @@ class AgentType(Enum):
             return OpenAIMemoryChatAgent
         elif _type == AgentType.react_conv:
             from gentopia.agent.react_conv import ReactConvAgent
+            return ReactConvAgent
         else:
             raise ValueError(f"Unknown agent type: {_type}")
 
