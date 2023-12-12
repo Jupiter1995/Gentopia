@@ -149,7 +149,7 @@ class AgentAssembler:
                 import torch
             except ImportError:
                 raise ImportError("Huggingface LLM requires PyTorch to be installed.")
-            device = obj.get('device', 'gpu' if torch.cuda.is_available() else 'cpu')
+            device = obj.get('device', 'gpu' if torch.cuda.is_available() else 'auto')
             params = HuggingfaceParamModel(**model_param)
             llm = HuggingfaceLLMClient(model_name=name, params=params, device=device)
         if llm is None:

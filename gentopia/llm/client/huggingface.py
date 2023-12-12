@@ -34,7 +34,7 @@ class HuggingfaceLoader(BaseModel):
 
     @validator('device')
     def validate_device(cls, v):
-        if v not in ["cpu", "mps", "gpu", "gpu-8bit", "gpu-4bit"]:
+        if v not in ["auto", "cpu", "mps", "gpu", "gpu-8bit", "gpu-4bit"]:
             raise ValueError(f"device {v} is not supported")
         # Try to downgrade if no GPU is available
         if not torch.cuda.is_available() and v in ["gpu", "gpu-8bit", "gpu-4bit"]:
@@ -186,7 +186,7 @@ class HuggingfaceLLMClient(BaseLLM, BaseModel):
         """
         # Load model
         if self.model is None:
-            print("Loading model from Huggingface...")
+            print(f"Loading model from Huggingface to device {self.device}...")
             model_loader = HuggingfaceLoader(model_name=self.model_name, device=self.device)
             loads = model_loader.load_model()
             if loads is None:
@@ -198,31 +198,37 @@ class HuggingfaceLLMClient(BaseLLM, BaseModel):
         if self.device in ["gpu", "gpu-8bit", "gpu-4bit"]:
             inputs = tokenizer(prompt, return_tensors="pt").to(torch.device("cuda"))
         else:
-            inputs = tokenizer(prompt, return_tensors="pt")
-        try:
-            outputs = model.generate(inputs=inputs,
-                                     temperature=self.params.temperature,
-                                     top_p=self.params.top_p,
-                                     max_new_tokens=self.params.max_new_tokens,
-                                     do_sample=self.params.do_sample,
-                                     **kwargs
-                                     )
-            completion = tokenizer.decode(outputs[:, inputs.input_ids.shape[-1]:][0], skip_special_tokens=True)
-            n_input_tokens = inputs.input_ids.shape[1]
-            n_output_tokens = outputs.shape[1]
-            return BaseCompletion(state="success",
-                                  content=completion,
-                                  prompt_token=n_input_tokens,
-                                  completion_token=n_output_tokens)
-        except Exception as e:
-            return BaseCompletion(state="error", content=str(e))
+            inputs = tokenizer(prompt, return_tensors="pt").to(self.device)
+        print("Tokenized successfully!\n")
+
+        # try:
+        print(f"using Huggingface LLM to generate response...\n")
+        outputs = model.generate(**inputs,
+                                    temperature=self.params.temperature,
+                                    top_p=self.params.top_p,
+                                    max_new_tokens=self.params.max_new_tokens,
+                                    do_sample=self.params.do_sample,
+                                    pad_token_id=tokenizer.eos_token_id,
+                                    **kwargs
+                                    )
+        print("generation finished")
+        completion = tokenizer.decode(outputs[:, inputs.input_ids.shape[-1]:], skip_special_tokens=True)[0]
+        n_input_tokens = inputs.input_ids.shape[1]
+        n_output_tokens = outputs.shape[1]
+        return BaseCompletion(state="success",
+                                content=completion,
+                                prompt_token=n_input_tokens,
+                                completion_token=n_output_tokens)
+        # except Exception as e:
+        #     print("Having errors to get the completions\n")
+        #     return BaseCompletion(state="error", content=str(e))
 
     def chat_completion(self, message) -> ChatCompletion:
         # TODO: Implement chat_completion
         # Maybe this is not needed.
         raise NotImplementedError("chat_completion is not supported for Huggingface LLM")
 
-    def stream_chat_completion(self, prompt, **kwargs) -> Generator:
+    def stream_chat_completion(self, prompt: str, **kwargs) -> Generator:
         """
         Stream output of Huggingface LLM for chat completion.
 

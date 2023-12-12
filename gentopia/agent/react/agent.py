@@ -137,7 +137,7 @@ class ReactAgent(BaseAgent):
             tool_names=tool_names
         )
 
-    def run(self, instruction, max_iterations=10):
+    def run(self, instruction, max_iterations=10, device: str = "auto"):
         """
         Run the agent with the given instruction.
 
@@ -149,6 +149,7 @@ class ReactAgent(BaseAgent):
         :rtype: AgentOutput
         """
         self.clear()
+        logging.basicConfig(level=logging.INFO)
         logging.info(f"Running {self.name + ':' + self.version} with instruction: {instruction}")
         total_cost = 0.0
         total_token = 0
@@ -157,7 +158,10 @@ class ReactAgent(BaseAgent):
 
             prompt = self._compose_prompt(instruction)
             logging.info(f"Prompt: {prompt}")
-            response = self.llm.completion(prompt, stop=["Observation:"])
+            if isinstance(self.llm, HuggingfaceLLMClient):
+                response = self.llm.completion(prompt=prompt)
+            else:
+                response = self.llm.completion(prompt, stop=["Observation:"])
             if response.state == "error":
                 print("Failed to retrieve response from LLM")
                 raise ValueError("Failed to retrieve response from LLM")

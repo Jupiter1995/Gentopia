@@ -12,6 +12,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+tmp_delete.py
+
 # C extensions
 *.so
 

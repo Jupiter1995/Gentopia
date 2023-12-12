@@ -65,3 +65,4 @@ class HuggingfaceParamModel(BaseParamModel):
     temperature: float = 0.0
     top_p: float = 1.0
     max_new_tokens: int = 1024
+    do_sample: bool = False

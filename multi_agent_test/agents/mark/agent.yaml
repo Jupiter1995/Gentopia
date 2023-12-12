@@ -8,6 +8,7 @@ target_tasks:
 prompt_template: !prompt multi_agent_test.agents.mark.prompt.PromptOfTrainer
 llm:
   model_name: camel-5b
+  device: "mps"
   params:
     temperature: 0.5
     do_sample: True

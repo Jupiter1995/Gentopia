@@ -128,7 +128,7 @@ class ReactConvAgent(ConvAgent, ReactAgent):
             """
             Generate llm response based on the received message from User or other agents
 
-            :param message: prompts from user or messages from other agents during the conversation
+            :param message: instructions from user or messages from other agents during the conversation
             :type message: Union[list[Dict], Dict]
             :param sender: Another conversational agent in the conversation with this agent
             :type sender: ConvAgent
@@ -145,22 +145,36 @@ class ReactConvAgent(ConvAgent, ReactAgent):
                 message = self._messages[sender]
 
             if isinstance(message, dict):
-                prompt = message["content"]
+                instruction = message["content"]
             else:
-                prompt = message
+                instruction = message
+
+            agent_outputs = self.run(instruction, max_iterations=1)
+            # agent_outputs = self.stream(instruction=instruction, max_iterations=2)
                 
-            instruction = self._compose_prompt(prompt)
-            reply_completion = self.llm.completion(prompt=instruction)
+            # instruction = self._compose_prompt(prompt)
+            # logging.info(f"Prompt: {prompt}")
+            # output.thinking(self.name)
+            # reply_completion = self.llm.completion(prompt=instruction, stop=["Observation:"])
+
+            # if response.state == "error":
+            #     print("Failed to retrieve response from LLM")
+            #     raise ValueError("Failed to retrieve response from LLM")
             
-            print(f"completion type: {reply_completion}, should be BaseCompletion")
-            print("-------")
-            
-            content = ""
-            output.print(f"[blue]{self.name}: ")
-            for i in reply_completion:
-                content += i.content
-                output.panel_print(i.content, self.name, True)
-            output.clear()
-            print(f"generated reply message: {reply_completion.to_dict()}")
-            return reply_completion.to_dict()
+            # output.done()
+
+            # self.intermediate_steps.append([self._parse_output(response.content), ])
+            # if isinstance(self.intermediate_steps[-1][0], AgentFinish):
+            #     break
+            # action = self.intermediate_steps[-1][0].tool
+            # tool_input = self.intermediate_steps[-1][0].tool_input
+
+            # content = ""
+            # output.print(f"[blue]{self.name}: ")
+            # for i in reply_completion:
+            #     content += i.content
+            #     output.panel_print(i.content, self.name, True)
+            # output.clear()
+            # print(f"generated reply message: {content}")
+            return agent_outputs.output
 
