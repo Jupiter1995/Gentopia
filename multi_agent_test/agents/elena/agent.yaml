@@ -8,7 +8,8 @@ target_tasks:
 prompt_template: !prompt multi_agent_test.agents.elena.prompt.PromptOfNutrition
 llm:
   model_name: camel-5b
-  device: "mps"
+  # device: "mps"
+  device: "gpu"
   params:
 
     temperature: 0.5

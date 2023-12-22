@@ -40,6 +40,7 @@ class HuggingfaceLoader(BaseModel):
         if not torch.cuda.is_available() and v in ["gpu", "gpu-8bit", "gpu-4bit"]:
             print("GPU is not available. Switching to CPU mode")
             v = "cpu"
+
         return v
 
     def get_model_info(self) -> HuggingfaceLoaderModel:
@@ -203,7 +204,7 @@ class HuggingfaceLLMClient(BaseLLM, BaseModel):
 
         # try:
         print(f"using Huggingface LLM to generate response...\n")
-        outputs = model.generate(**inputs,
+        outputs = model.generate(inputs=inputs.input_ids,
                                     temperature=self.params.temperature,
                                     top_p=self.params.top_p,
                                     max_new_tokens=self.params.max_new_tokens,
@@ -211,8 +212,14 @@ class HuggingfaceLLMClient(BaseLLM, BaseModel):
                                     pad_token_id=tokenizer.eos_token_id,
                                     **kwargs
                                     )
-        print("generation finished")
-        completion = tokenizer.decode(outputs[:, inputs.input_ids.shape[-1]:], skip_special_tokens=True)[0]
+        print("generation finished \n")
+        print(f"output type: {type(outputs)}")
+        print(f"output dim: {outputs.size()} \n")
+        print(f"input type: {type(inputs.input_ids)}")
+        print(f"input dim: {inputs.input_ids.size()}")
+        print("-----finished under huggingface.py-----")
+        completion = tokenizer.batch_decode(outputs[:, inputs.input_ids.shape[-1]:], skip_special_tokens=True)[0]
+        print(f"the response: \n {completion} \n")
         n_input_tokens = inputs.input_ids.shape[1]
         n_output_tokens = outputs.shape[1]
         return BaseCompletion(state="success",

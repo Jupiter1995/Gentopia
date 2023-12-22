@@ -54,7 +54,7 @@ class HuggingfaceLoaderModel(BaseModel):
                 kwargs['load_in_8bit'] = True
             if self.device == "gpu-4bit":
                 kwargs['load_in_4bit'] = True
-            kwargs['device_map'] = "auto"
+            kwargs['device_map'] = "cuda"
         return args, kwargs
 
 

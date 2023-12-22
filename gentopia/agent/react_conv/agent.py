@@ -150,7 +150,7 @@ class ReactConvAgent(ConvAgent, ReactAgent):
                 instruction = message
 
             agent_outputs = self.run(instruction, max_iterations=1)
-            # agent_outputs = self.stream(instruction=instruction, max_iterations=2)
+            # agent_outputs = self.stream(instruction=instruction, max_iterations=1)
                 
             # instruction = self._compose_prompt(prompt)
             # logging.info(f"Prompt: {prompt}")

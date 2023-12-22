@@ -157,6 +157,7 @@ class ReactAgent(BaseAgent):
         for _ in range(max_iterations):
 
             prompt = self._compose_prompt(instruction)
+            print(f"prompt: {prompt}")
             logging.info(f"Prompt: {prompt}")
             if isinstance(self.llm, HuggingfaceLLMClient):
                 response = self.llm.completion(prompt=prompt)
