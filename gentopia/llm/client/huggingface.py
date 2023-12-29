@@ -219,7 +219,11 @@ class HuggingfaceLLMClient(BaseLLM, BaseModel):
         print(f"input dim: {inputs.input_ids.size()}")
         print("-----finished under huggingface.py-----")
         completion = tokenizer.batch_decode(outputs[:, inputs.input_ids.shape[-1]:], skip_special_tokens=True)[0]
-        print(f"the response: \n {completion} \n")
+        print("Type of completion: ", type(completion), "\n")
+        with open("completion_tmp.txt", "w") as f:
+            f.write(completion)
+
+        # print(f"the response: \n {completion} \n")
         n_input_tokens = inputs.input_ids.shape[1]
         n_output_tokens = outputs.shape[1]
         return BaseCompletion(state="success",
