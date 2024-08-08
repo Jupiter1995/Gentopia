@@ -1,9 +1,8 @@
+import transformers
+from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM
+import torch
+from huggingface_hub import login
 from pinecone.grpc import PineconeGRPC as Pinecone
-from pinecone import ServerlessSpec
-
-"""
-
-"""
 
 
 def main():
@@ -12,34 +11,38 @@ def main():
         "LL-vnxTAeV9a6GHXf3LVnIgh6xYMBtrdEFjIKFsKN3IVkp1zhDkL78nPLgNdQeUGpqn"
     )
 
-    # embedding sample text query -> vector?
+    pc = Pinecone(api_key=PINECONE_API_KEY)
+    login("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")
 
+    tokenizer = AutoTokenizer.from_pretrained(
+        "meta-llama/Meta-Llama-3.1-8B", use_auth_token=True
+    )
+    model = AutoModel.from_pretrained(
+        "meta-llama/Meta-Llama-3.1-8B", torch_dtype=torch.float16, use_auth_token=True
+    )
+
+    text = "*movie description*"  # replace with movie description
+    inputs = tokenizer(text, return_tensors="pt")
+
+    with torch.no_grad():
+        outputs = model(**inputs)
+        # vector = outputs.last_hidden_state[:, 0, :].numpy()
+        last_hidden_states = outputs.last_hidden_state
+
+    vector = last_hidden_states[0]
+    print(vector)
 
     index = pc.Index("sample-movies")
 
     print(
         index.query(
-            vector=query_vector,
+            vector=vector[0],
             top_k=5,
             include_values=True,
             include_metadata=True,
-            # filter={"genre": {"$eq": "action"}},
         )
     )
 
 
-def embedding():
-    # model_id = "meta-llama/Meta-Llama-3-8B"
-
-    # pipeline = transformers.pipeline(
-    #     "text-generation",
-    #     model=model_id,
-    #     model_kwargs={"torch_dtype": torch.bfloat16},
-    #     device_map="auto",
-    # )
-    # pipeline("Hey how are you doing today?")
-    print()
-
-
 if __name__ == "__main__":
-    embedding()
+    main()
